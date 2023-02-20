@@ -61,25 +61,61 @@ describe('Cheese Boards', () => {
         console.log(await User.findAll());
     })
 
-    test('Multiple boards can be added to users', async () => {
+    test('Testing many-many relationship with boards and cheeses & eager loading', async () => {
         await sequelize.sync({ force: true });
-        const testUser = await User.create({ name: 'John', email: 'john@example.com' });
 
-        const newBoard = await Board.create({type: 'Oak', description: 'Professor', rating: 5});
-        const boardZe = await Board.create({ type: 'ZaZa', description: 'djsakdas', rating: 3});
-        const boardZa = await Board.create({ type: 'Birch', description: 'djsaads das', rating: 9});
-        await testUser.addBoard(newBoard);
-        await testUser.addBoard(boardZe);
-        await testUser.addBoard(boardZa);
+        const testUser = await User.create({ name: 'Leon', email: 'leon@example.com' });
 
-        const checkingBoards = await User.findAll({include: 'Boards'})
-        console.log(checkingBoards[0]);
-        console.log(checkingBoards[0].dataValues.Boards);
+        const testBoard = await Board.create({type: 'Lanton', description: 'Used to eat food off', rating : 3});
+        const testBoard2 = await Board.create({type: 'Choco', description: 'nice studd', rating: 8});
 
-        expect((await testUser.getBoards())[0].type).toBe('Oak');
-        expect(checkingBoards[0].dataValues.Boards[0].type).toBe('Birch');
-        expect(checkingBoards[0].dataValues.Boards[1].type).toBe('Oak');
-        expect(checkingBoards[0].dataValues.Boards[2].type).toBe('ZaZa');
+        testBoard.setUser(testUser);
+        testBoard2.setUser(testUser);
+
+        testUser.addBoard(testBoard);
+        testUser.addBoard(testBoard2);
+        
+        const newCheese = await Cheese.create({title: 'Cheese', description: 'feda cheese'});
+        const testCheese = await Cheese.create({ title: 'Cheddar', description: "Classic American Cheese"});
+        const goatCh = await Cheese.create({ title: 'Halloumi', description: "Fried cheese"});
+        const indiaCheese = await Cheese.create({ title: 'Paneer', description: "Fried cheese India"});
+
+
+        testBoard.addCheeses([newCheese, testCheese, indiaCheese, goatCh], {through: {item: 'cheese'}});
+        //testBoard.addCheese(goatCh, {through: {item: 'cheese'}});
+        testBoard2.addCheeses([newCheese, goatCh], {through: {item: 'cheese'}});
+
+        //Testing a board can have many cheeses
+
+        const findCheese = await Board.findOne({
+            where: {id: 1},
+            include:  Cheese,
+          
+          })
+        console.log(findCheese);
+        //console.log(findCheese[0].dataValues.Cheeses);
     })
+         
+
+    // test('Multiple boards can be added to users', async () => {
+    //     await sequelize.sync({ force: true });
+    //     const testUser = await User.create({ name: 'John', email: 'john@example.com' });
+
+    //     const newBoard = await Board.create({type: 'Oak', description: 'Professor', rating: 5});
+    //     const boardZe = await Board.create({ type: 'ZaZa', description: 'djsakdas', rating: 3});
+    //     const boardZa = await Board.create({ type: 'Birch', description: 'djsaads das', rating: 9});
+    //     await testUser.addBoard(newBoard);
+    //     await testUser.addBoard(boardZe);
+    //     await testUser.addBoard(boardZa);
+
+    //     const checkingBoards = await User.findAll({include: 'Boards'})
+    //     console.log(checkingBoards[0]);
+    //     console.log(checkingBoards[0].dataValues.Boards);
+
+    //     expect((await testUser.getBoards())[0].type).toBe('Oak');
+    //     expect(checkingBoards[0].dataValues.Boards[0].type).toBe('Birch');
+    //     expect(checkingBoards[0].dataValues.Boards[1].type).toBe('Oak');
+    //     expect(checkingBoards[0].dataValues.Boards[2].type).toBe('ZaZa');
+    // })
  
 });

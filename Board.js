@@ -8,7 +8,7 @@ const Board = sequelize.define('Board', {
     rating: Sequelize.NUMBER
 
 
-});
+}, { timestamps: false });
 
 module.exports = {
     Board

@@ -6,7 +6,7 @@ const Cheese = sequelize.define('Cheese', {
     title: Sequelize.STRING,
     description: Sequelize.STRING
 
-});
+},  { timestamps: false });
 
 module.exports = {
     Cheese
