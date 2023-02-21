@@ -61,6 +61,30 @@ describe('Cheese Boards', () => {
         console.log(await User.findAll());
     })
 
+    
+         
+
+    test('Multiple boards can be added to users', async () => {
+        await sequelize.sync({ force: true });
+        const testUser = await User.create({ name: 'John', email: 'john@example.com' });
+
+        const newBoard = await Board.create({type: 'Oak', description: 'Professor', rating: 5});
+        const boardZe = await Board.create({ type: 'ZaZa', description: 'djsakdas', rating: 3});
+        const boardZa = await Board.create({ type: 'Birch', description: 'djsaads das', rating: 9});
+        await testUser.addBoard(newBoard);
+        await testUser.addBoard(boardZe);
+        await testUser.addBoard(boardZa);
+
+        const checkingBoards = await User.findAll({include: 'Boards'})
+        console.log(checkingBoards[0]);
+        console.log(checkingBoards[0].dataValues.Boards);
+
+        expect((await testUser.getBoards())[0].type).toBe('Oak');
+        expect(checkingBoards[0].dataValues.Boards[0].type).toBe('Birch');
+        expect(checkingBoards[0].dataValues.Boards[1].type).toBe('Oak');
+        expect(checkingBoards[0].dataValues.Boards[2].type).toBe('ZaZa');
+    })
+
     test('Testing many-many relationship with boards and cheeses & eager loading', async () => {
         await sequelize.sync({ force: true });
 
@@ -94,28 +118,9 @@ describe('Cheese Boards', () => {
           })
         console.log(findCheese);
         //console.log(findCheese[0].dataValues.Cheeses);
-    })
-         
 
-    test('Multiple boards can be added to users', async () => {
-        await sequelize.sync({ force: true });
-        const testUser = await User.create({ name: 'John', email: 'john@example.com' });
-
-        const newBoard = await Board.create({type: 'Oak', description: 'Professor', rating: 5});
-        const boardZe = await Board.create({ type: 'ZaZa', description: 'djsakdas', rating: 3});
-        const boardZa = await Board.create({ type: 'Birch', description: 'djsaads das', rating: 9});
-        await testUser.addBoard(newBoard);
-        await testUser.addBoard(boardZe);
-        await testUser.addBoard(boardZa);
-
-        const checkingBoards = await User.findAll({include: 'Boards'})
-        console.log(checkingBoards[0]);
-        console.log(checkingBoards[0].dataValues.Boards);
-
-        expect((await testUser.getBoards())[0].type).toBe('Oak');
-        expect(checkingBoards[0].dataValues.Boards[0].type).toBe('Birch');
-        expect(checkingBoards[0].dataValues.Boards[1].type).toBe('Oak');
-        expect(checkingBoards[0].dataValues.Boards[2].type).toBe('ZaZa');
+        // goatCh.addBoard(testBoard, {through: {item: 'cheese'}});
+        // indiaCheese.addBoard(testBoard2, {through: {item: 'cheese'}});
     })
  
 });
